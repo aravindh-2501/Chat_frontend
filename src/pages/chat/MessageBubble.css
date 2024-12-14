@@ -1,0 +1,44 @@
+.message-bubble {
+    max-width: 70%;
+    padding: 12px;
+    margin-bottom: 15px;
+    border-radius: 15px;
+    font-size: 1rem;
+    line-height: 1.4;
+    word-wrap: break-word;
+    /* background-color: white; */
+  }
+  .user {
+    background-color: #2d9cdb;
+    color: white;
+    max-width: 70%;
+    padding: 12px;
+    margin-bottom: 15px;
+    margin-left: auto; /* Pushes the message to the right */
+    margin-right: 0; /* Ensures no margin on the right side */
+    border-radius: 15px;
+    font-size: 1rem;
+    line-height: 1.4;
+    word-wrap: break-word;
+    border-bottom-right-radius: 0; /* Optional: to match your previous design */
+  }
+  
+ .other {
+    background-color: #444;
+    color: white;
+    max-width: 70%;
+    padding: 12px;
+    margin-bottom: 15px;
+    margin-right: auto; /* Pushes the message to the left */
+    border-radius: 15px;
+    font-size: 1rem;
+    line-height: 1.4;
+    word-wrap: break-word;
+    border-bottom-left-radius: 0; /* Optional: to match your previous design */
+  }
+  
+  
+  .message-bubble p {
+    margin: 0;
+  }
+  
