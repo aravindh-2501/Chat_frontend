@@ -1,85 +1,139 @@
-import React, { useState } from 'react';
-import './FormStyles.css';
-import axios from 'axios';
-import toast from 'react-hot-toast';
-import { useNavigate } from 'react-router-dom';
+import {
+  ChatBubbleBottomCenterTextIcon,
+  ChatBubbleOvalLeftEllipsisIcon,
+  EnvelopeIcon,
+  EyeIcon,
+  EyeSlashIcon,
+  UserIcon,
+} from "@heroicons/react/24/outline";
+import AuthImagePattern from "./AuthImagePattern";
+import { useForm } from "react-hook-form";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
+import { REGISTER } from "../api/endPoints";
+import apiClient from "../api/apiInstance";
 
 const Register = () => {
-  const [email, setEmail] = useState('');
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [loading, setLoading] = useState(false); // Add loading state
+  const { register, handleSubmit, reset } = useForm();
+  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
-  // Async function for handling form submission
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true); // Start loading
-
+  const onSubmit = async (data) => {
     try {
-      const response = await axios.post("https://chat-backend-1-9z10.onrender.com/api/register", { email, username, password });
-
-      // If registration is successful, show a success message and reset the form
-      toast.success(response.data.msg);
-      setEmail('');
-      setUsername('');
-      setPassword('');
-      
-      // Redirect user to the login page after successful registration
-      navigate('/');
-
+      const res = await apiClient.post(REGISTER, data);
+      toast.success(res?.data?.msg);
+      console.log({res})
+      navigate("/login");
+      reset();
     } catch (error) {
-      // If registration fails, display an error message
-      if (error.response) {
-        toast.error(error.response.data.error || 'Registration failed. Please try again.');
-      } else {
-        toast.error('Network error. Please try again later.');
-      }
-      console.error('Error during registration:', error);
-    } finally {
-      setLoading(false); // Stop loading
+      console.log({error})
+      const errorMessage =
+        error?.response?.data?.message || "Registration failed. Please try again.";
+      toast.error(errorMessage);
     }
   };
 
   return (
-    <div className="form-container">
-      <h2 className="form-heading">Register</h2>
-      <form onSubmit={handleSubmit}>
-        <div className="input-group">
-          <input
-            type="email"
-            className="input-field"
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
+    <div className="w-screen h-screen grid lg:grid-cols-2 bg-base-100">
+      {/* Left Side */}
+      <AuthImagePattern
+        subtitle={
+          <div className="flex items-center justify-center gap-1">
+            Looking for fun? Join the sassiest squad in town!
+            <ChatBubbleOvalLeftEllipsisIcon className="inline w-6 h-6 text-primary" />
+          </div>
+        }
+        title="Sign Up, Cutie!"
+      />
+
+      {/* Right Side */}
+      <div className="flex flex-col items-center justify-center gap-10 p-6">
+        {/* Top Section */}
+        <div className="flex flex-col items-center justify-center gap-4">
+          <div className="border border-primary p-4 rounded-lg shadow-lg bg-base-200">
+            <ChatBubbleBottomCenterTextIcon className="w-10 h-10 text-primary animate-bounce" />
+          </div>
+          <h1 className="text-5xl font-extrabold mt-4 text-center">
+            Ready to Sparkle? 💖
+          </h1>
+          <p className="text-base-content/60 text-center mt-2">
+            Join us and be the star of the chat show! 🌟
+          </p>
         </div>
-        <div className="input-group">
-          <input
-            type="text"
-            className="input-field"
-            placeholder="Username"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            required
-          />
-        </div>
-        <div className="input-group">
-          <input
-            type="password"
-            className="input-field"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-        </div>
-        <p style={{marginBottom:"8px",color:"#018F96",textDecoration:"underline"}} onClick={()=>{navigate("/")}}>Already have an account</p>
-        <button type="submit" className="btn-submit" disabled={loading}>
-          {loading ? 'Registering...' : 'Register'}
-        </button>
-      </form>
+
+        {/* Input Fields */}
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className="flex flex-col items-center justify-center gap-5 w-full max-w-sm"
+        >
+          {/* Username Field */}
+          <label className="input input-bordered flex items-center gap-2 w-full shadow-sm">
+            <UserIcon className="w-6 h-6 text-primary" />
+            <input
+              type="text"
+              className="grow focus:outline-none bg-transparent rounded-xl"
+              autoComplete="username"
+              placeholder="Your fabulous username 💅"
+              {...register("username", { required: "Username is required" })}
+            />
+          </label>
+
+          {/* Email Field */}
+          <label className="input input-bordered flex items-center gap-2 w-full shadow-sm">
+            <EnvelopeIcon className="w-6 h-6 text-primary" />
+            <input
+              type="email"
+              className="grow focus:outline-none bg-transparent rounded-xl"
+              autoComplete="email"
+              placeholder="Your dreamy email ✉️"
+              {...register("email", {
+                required: "Email is required",
+                pattern: {
+                  value: /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/,
+                  message: "Please enter a valid email address",
+                },
+              })}
+            />
+          </label>
+
+          {/* Password Field */}
+          <label className="input input-bordered flex items-center gap-2 w-full shadow-sm">
+            <input
+              type={showPassword ? "text" : "password"}
+              className="grow focus:outline-none bg-transparent rounded-xl"
+              placeholder="Your sassy password 🔒"
+              {...register("password", { required: "Password is required" })}
+              autoComplete="password"
+            />
+            <div
+              onClick={() => setShowPassword(!showPassword)}
+              className="cursor-pointer"
+            >
+              {showPassword ? (
+                <EyeSlashIcon className="w-6 h-6 text-primary hover:text-secondary" />
+              ) : (
+                <EyeIcon className="w-6 h-6 text-primary hover:text-secondary" />
+              )}
+            </div>
+          </label>
+
+          <p className="text-base-content/80">
+            Got an account already?{" "}
+            <span
+              className="text-primary font-bold underline cursor-pointer"
+              onClick={() => navigate("/login")}
+            >
+              Slide back in! 😉
+            </span>
+          </p>
+
+          {/* Register Button */}
+          <button type="submit" className="btn btn-primary w-full shadow-lg">
+            💃 Create My Account
+          </button>
+        </form>
+      </div>
     </div>
   );
 };

@@ -2,6 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import './Sidebar.css';
 import axios from 'axios';
 import Select from 'react-select';
+import { baseUrl } from '../../api';
 
 const Sidebar = ({setSelectedUser,selectedUser}) => {
   const [search, setSearch] = useState('');
@@ -17,7 +18,7 @@ const Sidebar = ({setSelectedUser,selectedUser}) => {
         }
 
         try {
-            const res = await axios.get(`https://chat-backend-1-9z10.onrender.com/api/users?userId=${user._id}`);
+            const res = await axios.get(`${baseUrl}/api/users?userId=${user._id}`);
             setUsers(res?.data?.data || []);
         } catch (error) {
             console.error('Error fetching users:', error);
@@ -36,7 +37,7 @@ const Sidebar = ({setSelectedUser,selectedUser}) => {
         }
 
         try {
-            const res = await axios.get(`https://chat-backend-1-9z10.onrender.com/api/getConvoUser?userId=${user._id}`);
+            const res = await axios.get(`${baseUrl}/api/getConvoUser?userId=${user._id}`);
             setChats(res?.data?.data || []);
         } catch (error) {
             console.error('Error fetching users:', error);

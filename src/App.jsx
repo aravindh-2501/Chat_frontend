@@ -1,32 +1,30 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router } from "react-router-dom";
+import AppRoutes from "./routes/Approutes";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { Toaster } from "react-hot-toast";
+import Navbar from "./shared/Navbar";
+import { useTheme } from "./store/useTheme";
+import { AuthProvider } from "./context/AuthContext";
 
-// Using aliases in imports
-import Login from '@auth/Login';
-import Chat from '@pages/chat/Chat';
-import Register from '@auth/Register';
-import { Toaster } from 'react-hot-toast';
-
-const App = () => {
-  
-
+export default function App() {
+  const queryClient = new QueryClient();
+  const { theme } = useTheme();
 
   return (
-    <div>
-      <Toaster/>
-      <BrowserRouter>
-        <Routes>
-          <Route
-            path="/"
-            element={<Login/>}
-          />
-          <Route
-            path="/register"
-            element={<Register/>}/>
-          <Route path="/chat" element={<Chat  />} />
-        </Routes>
-      </BrowserRouter>
+    <div data-theme={theme}>
+      <AuthProvider>
+        <QueryClientProvider client={queryClient}>
+          <Router
+            future={{
+              v7_startTransition: true,
+            }}
+          >
+            <Navbar />
+            <AppRoutes />
+            <Toaster position="top-center" />
+          </Router>
+        </QueryClientProvider>
+      </AuthProvider>
     </div>
   );
-};
-
-export default App;
+}

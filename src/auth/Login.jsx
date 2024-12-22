@@ -1,72 +1,137 @@
-import React, { useState } from 'react';
-import './FormStyles.css';
-import axios from 'axios';
-import toast from 'react-hot-toast';
-import { useNavigate } from 'react-router-dom';
+// components/Login.jsx
+import {
+  ChatBubbleBottomCenterTextIcon,
+  EnvelopeIcon,
+  EyeIcon,
+  EyeSlashIcon,
+} from "@heroicons/react/24/outline";
+import AuthImagePattern from "./AuthImagePattern";
+import { useForm } from "react-hook-form";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
+import { LOGIN } from "../api/endPoints";
+import apiClient from "../api/apiInstance";
+import { useAuth } from "../context/AuthContext";
 
 const Login = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [loading, setLoading] = useState(false); 
+  const { register, handleSubmit, reset } = useForm();
+  const [showPassword, setShowPassword] = useState(false);
+  const { login } = useAuth();
   const navigate = useNavigate();
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true); // Start loading state
-
+  // Handling form submission
+  const onSubmit = async (data) => {
     try {
-      const response = await axios.post("https://chat-backend-1-9z10.onrender.com/api/login", { email, password });
-      
-      // On success
-      if (response.data.data) {
-        // Save user data to localStorage (be mindful of sensitive data)
-        localStorage.setItem("user-chat", JSON.stringify(response.data.data));
-        toast.success(response.data.msg);
-        
-        // Redirect to the chat page
-        navigate('/chat');
-        
-        // Reset form fields
-        setEmail('');
-        setPassword('');
+      const res = await apiClient.post(LOGIN, data);
+
+      console.log({ res });
+
+      if (res?.data?.token) {
+        const { user, token, msg } = res.data;
+        login({ user, token });
+        toast.success(msg || "Welcome back!");
+        navigate("/");
+        reset();
+      } else {
+        toast.error("Login failed. Please try again.");
       }
     } catch (error) {
-      // Handle error
-      toast.error(error.response ? error.response.data.msg : "Something went wrong");
-    } finally {
-      setLoading(false); // Stop loading state after the request
+      console.log({ error });
+      const errorMessage =
+        error?.response?.data?.message || "Login failed. Please try again.";
+      toast.error(errorMessage);
     }
   };
 
   return (
-    <div className="form-container">
-      <h2 className="form-heading">Login</h2>
-      <form onSubmit={handleSubmit}>
-        <div className="input-group">
-          <input
-            type="email"
-            className="input-field"
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
+    <div className="w-screen h-screen grid lg:grid-cols-2 bg-base-100">
+      {/* Left Side */}
+      <div className="flex flex-col items-center justify-center gap-10 p-6">
+        <div className="flex flex-col items-center justify-center gap-4">
+          <div className="border border-primary p-4 rounded-lg shadow-lg bg-base-200">
+            <ChatBubbleBottomCenterTextIcon className="w-10 h-10 text-primary animate-bounce" />
+          </div>
+          <div>
+            <h1 className="text-5xl font-extrabold mt-4 text-center">
+              Hello, Gorgeous! 💃
+            </h1>
+            <p className="text-base-content/60 text-center mt-2">
+              Log in, light up the room, and let’s make sparks fly! ✨
+            </p>
+          </div>
         </div>
-        <div className="input-group">
-          <input
-            type="password"
-            className="input-field"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-        </div>
-        <p style={{marginBottom:"8px",color:"#018F96",textDecoration:"underline"}} onClick={()=>{navigate("/register")}}>create an account</p>
-        <button type="submit" className="btn-submit" disabled={loading}>
-          {loading ? 'Logging in...' : 'Login'}
-        </button>
-      </form>
+
+        {/* Input Fields */}
+        <form onSubmit={handleSubmit(onSubmit)} className="w-full">
+          <div className="flex flex-col items-center justify-center gap-5 w-3/6 mx-auto">
+            {/* Email Field */}
+            <div className="form-control w-full">
+              <label className="input input-bordered flex items-center w-full shadow-sm">
+                <EnvelopeIcon className="w-6 h-6 text-primary" />
+                <input
+                  type="email"
+                  className="grow focus:outline-none bg-transparent ml-2 rounded-xl"
+                  placeholder="Your dazzling email ✉️"
+                  autoComplete="email"
+                  {...register("email", { required: "Email is required" })}
+                />
+              </label>
+            </div>
+
+            {/* Password Field */}
+            <div className="form-control w-full">
+              <label className="input input-bordered flex items-center w-full shadow-sm">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  className="grow focus:outline-none bg-transparent mr-2 rounded-xl"
+                  placeholder="Your secret pass to fabulous 💎"
+                  autoComplete="password"
+                  {...register("password", {
+                    required: "Password is required",
+                  })}
+                />
+                <div
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="cursor-pointer"
+                >
+                  {showPassword ? (
+                    <EyeSlashIcon className="w-6 h-6 text-primary hover:text-secondary" />
+                  ) : (
+                    <EyeIcon className="w-6 h-6 text-primary hover:text-secondary" />
+                  )}
+                </div>
+              </label>
+            </div>
+
+            <p className="text-base-content/80">
+              New here?{" "}
+              <span
+                className="text-primary font-bold underline cursor-pointer"
+                onClick={() => navigate("/register")}
+              >
+                Let’s create some magic!
+              </span>
+            </p>
+
+            {/* Login Button */}
+            <button type="submit" className="btn btn-primary w-full shadow-lg">
+              🚀 Sparkle and Shine!
+            </button>
+          </div>
+        </form>
+      </div>
+
+      {/* Right Side */}
+      <AuthImagePattern
+        subtitle={
+          <div className="flex items-center justify-center gap-1">
+            Join the fun, charm the world, and chat with style!
+            <ChatBubbleBottomCenterTextIcon className="inline w-6 h-6 text-primary" />
+          </div>
+        }
+        title="Welcome Back, Stunner!"
+      />
     </div>
   );
 };

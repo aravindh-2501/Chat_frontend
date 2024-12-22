@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useRef } from 'react';
 import axios from 'axios';
 import "./MessageBubble.css";
+import { baseUrl } from '../../api';
 
 const MessageBubble = ({ selectedUser, setMessages, messages }) => {
   const user = useMemo(() => JSON.parse(localStorage.getItem("user-chat")), []);
@@ -8,7 +9,7 @@ const MessageBubble = ({ selectedUser, setMessages, messages }) => {
   useEffect(() => {
     const fetchMessages = async () => {
       try {
-        const response = await axios.get(`https://chat-backend-1-9z10.onrender.com/api/getConvo/${user._id}`, {
+        const response = await axios.get(`${baseUrl}/api/getConvo/${user._id}`, {
           params: { receiver: selectedUser._id }
         });
         setMessages(response.data.messages);
